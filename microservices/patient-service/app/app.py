@@ -5,6 +5,7 @@ app = Flask(__name__)
 # In-memory database for simplicity
 patients = {}
 
+
 @app.route('/patients', methods=['POST'])
 def create_patient():
     data = request.json
