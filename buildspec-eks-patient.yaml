@@ -2,7 +2,6 @@ version: 0.2
 run-as: root
 
 phases:
-
   install:
     commands:
       - echo Installing eksctl...
@@ -27,11 +26,7 @@ phases:
       - echo Logging in to Amazon EKS...
       - aws eks --region us-east-1 update-kubeconfig --name healthsync
       - echo Create IAM identity mapping for CodeBuild service role...
-      - eksctl create iamidentitymapping \
-          --cluster healthsync \
-          --arn arn:aws:iam::182399719344:role/service-role/codebuild-cousework-cc-cicd-codebuild-service-role \
-          --username healthcare-user-role \
-          --group system:masters
+      - eksctl create iamidentitymapping  --cluster healthsync   --arn arn:aws:iam::182399719344:role/service-role/codebuild-cousework-cc-cicd-codebuild-service-role  --username healthcare-user-role   --group system:masters
       - echo check config 
       - kubectl config view --minify
       - echo check kubectl access
@@ -40,7 +35,6 @@ phases:
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
       - REPOSITORY_URI=182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service
       - docker pull $REPOSITORY_URI:latest
-      
 
   build:
     commands:
@@ -53,7 +47,6 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
       - echo Push the latest image to cluster
       - kubectl apply -f kubernetes/patient-service/deployment.yaml
