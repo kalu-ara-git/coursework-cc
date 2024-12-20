@@ -9,7 +9,7 @@ phases:
     commands:
       # Authenticate Docker to ECR
       - echo "Logging into Amazon ECR..."
-      # - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
      
       # Build Docker images for each service
       - echo "Building Docker images..."
