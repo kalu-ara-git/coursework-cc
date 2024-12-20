@@ -16,7 +16,7 @@ phases:
       - echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
       - source ~/.bashrc
       - echo 'Check kubectl version'
-      - kubectl version --short --client
+      - kubectl version
       - echo Running prerequisites script...
       - chmod +x ci-cd/prereqs.sh
       - sh ci-cd/prereqs.sh
@@ -26,7 +26,6 @@ phases:
       - echo Logging in to Amazon EKS...
       - aws eks --region us-east-1 update-kubeconfig --name healthsync
       - echo Create IAM identity mapping for CodeBuild service role...
-      - eksctl create iamidentitymapping  --cluster healthsync   --arn arn:aws:iam::182399719344:role/service-role/codebuild-cousework-cc-cicd-codebuild-service-role  --username healthcare-user-role   --group system:masters
       - echo check config 
       - kubectl config view --minify
       - echo check kubectl access
