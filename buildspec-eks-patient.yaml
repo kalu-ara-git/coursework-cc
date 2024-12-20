@@ -16,7 +16,7 @@ phases:
       - echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
       - source ~/.bashrc
       - echo 'Check kubectl version'
-      - kubectl version
+      - kubectl version --client
       - echo Running prerequisites script...
       - chmod +x ci-cd/prereqs.sh
       - sh ci-cd/prereqs.sh
