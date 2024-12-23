@@ -3,7 +3,7 @@ name: Trigger CodePipeline on commit
 on:
   push:
     paths:
-      - 'microservices/patient-service/**'  # Trigger on commit to this folder
+      - 'microservices/notification-service/**'  # Trigger on commit to this folder
 
 jobs:
   trigger_pipeline:

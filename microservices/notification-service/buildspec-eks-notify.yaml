@@ -21,6 +21,7 @@ phases:
       - docker tag cc-patient-notification-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
  
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
+      
 
 cache:
   paths:
