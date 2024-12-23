@@ -22,4 +22,4 @@ jobs:
 
       - name: Trigger CodePipeline
         run: |
-          aws codepipeline start-pipeline-execution --name cc-patient-record-service-codepipeline
+          aws codepipeline start-pipeline-execution --name cc-patient-notification-service-codepipeline

@@ -12,8 +12,7 @@ phases:
      
       # Use a pre-pulled or cached Python base image (if available)
       - echo "Building Docker images..."
-      - docker build -t cc-patient-record-service ./microservices/patient-service
-
+      - docker build -t cc-patient-record-service .
       # Tag and push images to ECR
       - echo "Tagging and pushing Docker images..."
       - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest

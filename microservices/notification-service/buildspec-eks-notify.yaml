@@ -12,7 +12,7 @@ phases:
      
       # Build Docker images for each service
       - echo "Building Docker images..."
-      - docker build -t cc-patient-notification-service ./microservices/notification-service
+      - docker build -t cc-patient-notification-service .
  
       # Tag and push images to ECR
       - echo "Tagging and pushing Docker images..."
