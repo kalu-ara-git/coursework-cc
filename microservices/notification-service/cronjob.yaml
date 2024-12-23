@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: patient-reminder-job
+spec:
+  schedule: "45 14 * * *" # Adjust the schedule to run daily at 9:30 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: patient-reminder-task
+            image: curlimages/curl:latest
+            command: ["curl"]
+            args: ["-X", "GET", "http://patient-notification-service.default.svc.cluster.local:5000/send-appointment-reminders"]
+          restartPolicy: OnFailure

@@ -2,8 +2,7 @@ version: 0.2
  
 phases:
   install:
-    commands:
- 
+    commands: 
       - echo "skipped Docker is preinstalled."
   build:
     commands:
@@ -13,10 +12,14 @@ phases:
      
       # Build Docker images for each service
       - echo "Building Docker images..."
-      - docker build -t cc-patient-record-service ./microservices/patient-service
+      - docker build -t cc-patient-update-service ./microservices/update-service
  
       # Tag and push images to ECR
       - echo "Tagging and pushing Docker images..."
-      - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
+      - docker tag cc-patient-update-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
  
-      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
+      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
+
+cache:
+  paths:
+    - '/root/.docker'   # Enable Docker layer caching to speed up builds and avoid unnecessary pulls
