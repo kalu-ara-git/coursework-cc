@@ -1,23 +1,22 @@
 version: 0.2
- 
+
 phases:
   install:
-    commands: 
-      - echo "skipped Docker is preinstalled."
-  build:
     commands:
-      # Authenticate Docker to ECR
       - echo "Logging into Amazon ECR..."
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
-     
-      # Build Docker images for each service
-      - echo "Building Docker images..."
+      - echo "Pulling Python image from ECR..."
+      - docker pull 182399719344.dkr.ecr.us-east-1.amazonaws.com/python-3-9:latest
+
+  build:
+    commands:
+      - echo "Building Docker image..."
       - docker build -t cc-patient-update-service ./microservices/update-service
- 
-      # Tag and push images to ECR
-      - echo "Tagging and pushing Docker images..."
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
       - docker tag cc-patient-update-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
- 
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
 
 cache:

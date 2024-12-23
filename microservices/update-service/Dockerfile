@@ -1,5 +1,5 @@
 # Use Python image
-FROM python:3.11-slim
+FROM 182399719344.dkr.ecr.us-east-1.amazonaws.com/python-3-9:latest
 
 # Set the working directory
 WORKDIR /app
