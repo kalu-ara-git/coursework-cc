@@ -15,7 +15,7 @@ phases:
   build:
     commands:
       - echo "Building Docker images..."
-      - docker build -t cc-patient-record-service ./microservices/aggregator-service
+      - docker build -t cc-patient-aggregator-service ./microservices/aggregator-service
       
   post_build:
     commands:
