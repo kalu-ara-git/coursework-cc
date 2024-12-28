@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: patient-notification-service
+  name: patient-notification-service-uat
 spec:
   replicas: 1  # Single replica since it's only used by the CronJob
   selector:
     matchLabels:
-      app: patient-notification-service
+      app: patient-notification-service-uat
   template:
     metadata:
       labels:
-        app: patient-notification-service
+        app: patient-notification-service-uat
     spec:
       containers:
       - name: patient-notification-service
-        image: 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest  # Use your ECR image
+        image: 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:uat  # Use your ECR image
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: patient-notification-service
+  name: patient-notification-service-uat
   namespace: default
 spec:
   selector:
-    app: patient-notification-service
+    app: patient-notification-service-uat
   ports:
     - protocol: TCP
       port: 5000

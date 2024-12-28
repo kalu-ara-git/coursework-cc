@@ -18,9 +18,9 @@ phases:
     commands: 
       # Tag and push images to ECR
       - echo "Tagging and pushing Docker images..."
-      - docker tag cc-patient-notification-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
+      - docker tag cc-patient-notification-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:uat
  
-      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
+      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:uat
       
 
 cache:

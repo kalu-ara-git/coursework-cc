@@ -17,8 +17,8 @@ phases:
   post_build:
     commands:
       - echo "Tagging and pushing Docker images..."
-      - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
-      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
+      - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:uat
+      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:uat
 
 cache:
   paths:

@@ -22,4 +22,4 @@ jobs:
 
       - name: Trigger CodePipeline
         run: |
-          aws codepipeline start-pipeline-execution --name cc-patient-notification-service-codepipeline
+          aws codepipeline start-pipeline-execution --name cc-patient-notification-service-codepipeline-uat

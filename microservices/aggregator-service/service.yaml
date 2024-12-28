@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: patient-aggregator-service
+  name: patient-aggregator-service-uat
   namespace: default
 spec:
   selector:

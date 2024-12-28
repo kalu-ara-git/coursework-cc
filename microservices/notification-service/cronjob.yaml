@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: patient-reminder-job
+  name: patient-reminder-job-uat
 spec:
   schedule: "45 14 * * *" # Adjust the schedule to run daily at 9:30 AM UTC
   jobTemplate:
