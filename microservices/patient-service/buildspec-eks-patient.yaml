@@ -25,7 +25,7 @@ phases:
       - echo "Deploying to EKS cluster..."
       - kubectl apply -f ./microservices/patient-service/deployment.yaml
       - echo "Rolling out deployment..."
-      - kubectl rollout status deployment/cc-patient-record-service
+      - kubectl rollout status deployment/patient-record-service
 
 cache:
   paths:
