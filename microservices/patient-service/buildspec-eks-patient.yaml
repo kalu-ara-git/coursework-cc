@@ -7,6 +7,7 @@ phases:
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
       - echo "Configuring kubectl for EKS cluster..."
       - aws sts get-caller-identity
+      - env | grep AWS
       - aws eks update-kubeconfig --region us-east-1 --name healthsync
       - kubectl get nodes
 
