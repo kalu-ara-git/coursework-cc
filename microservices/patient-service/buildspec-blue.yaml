@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Logging into Amazon ECR..."
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Pulling Python image from ECR..."
+      - docker pull 182399719344.dkr.ecr.us-east-1.amazonaws.com/python-3-9:latest
+  build:
+    commands:
+      - echo "Building Docker images..."
+      - docker build -t cc-patient-record-service:blue ./microservices/patient-service
+  post_build:
+    commands:
+      - echo "Tagging and pushing Docker images..."
+      - docker tag cc-patient-record-service:blue 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:blue
+      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:blue
+
+cache:
+  paths:
+    - '/root/.docker'   # Enable Docker layer caching to speed up builds and avoid unnecessary pulls
