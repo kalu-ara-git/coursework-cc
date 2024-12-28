@@ -19,8 +19,11 @@ phases:
       # Tag and push images to ECR
       - echo "Tagging and pushing Docker images..."
       - docker tag cc-patient-notification-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
- 
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-notification-service:latest
+      - echo "Deploying to EKS cluster..."
+      - kubectl apply -f ./microservices/notification-service/deployment.yaml
+      - echo "Rolling out deployment..."
+      - kubectl rollout status deployment/patient-notification-service
       
 
 cache:

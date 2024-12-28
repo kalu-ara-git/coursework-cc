@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Logging into Amazon ECR..."
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Configuring kubectl for EKS cluster..."
+      - aws sts get-caller-identity
+      - env | grep AWS
+      - aws eks update-kubeconfig --region us-east-1 --name healthsync
+      - rm -rf ~/.aws/credentials
+      - rm -rf ~/.aws/config
+
+  build:
+    commands:
+      - echo "Building Docker images..."
+      - docker build -t cc-patient-record-service ./microservices/aggregator-service
+      
+  post_build:
+    commands:
+      - echo "Tagging and pushing Docker images..."
+      - docker tag cc-patient-aggregator-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-aggregator-service:latest
+      - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-aggregator-service:latest
+      - echo "Deploying to EKS cluster..."
+      - kubectl apply -f ./microservices/aggregator-service/deployment.yaml
+      - echo "Rolling out deployment..."
+      - kubectl rollout status deployment/patient-aggregator-service
+
+cache:
+  paths:
+    - '/root/.docker'   # Enable Docker layer caching to speed up builds and avoid unnecessary pulls

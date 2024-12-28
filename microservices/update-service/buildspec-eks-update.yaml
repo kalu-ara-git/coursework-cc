@@ -18,7 +18,10 @@ phases:
       - echo "Pushing Docker image to ECR..."
       - docker tag cc-patient-update-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-update-service:latest
-
+      - echo "Deploying to EKS cluster..."
+      - kubectl apply -f ./microservices/update-service/deployment.yaml
+      - echo "Rolling out deployment..."
+      - kubectl rollout status deployment/patient-update-service
 cache:
   paths:
     - '/root/.docker'   # Enable Docker layer caching to speed up builds and avoid unnecessary pulls
