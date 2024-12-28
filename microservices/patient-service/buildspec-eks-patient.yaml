@@ -24,7 +24,7 @@ phases:
       - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
       - echo "Deploying to EKS cluster..."
-      - kubectl apply -f ./microservices/patient-service/deployment.yml
+      - kubectl apply -f ./microservices/patient-service/deployment.yaml
       - echo "Rolling out deployment..."
       - kubectl rollout status deployment/cc-patient-record-service
 
