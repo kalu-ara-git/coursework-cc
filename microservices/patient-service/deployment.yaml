@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: patient-record-service-uat
+  name: patient-record-service-blue
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: patient-record-service
+      app: patient-record-service-blue
   template:
     metadata:
       labels:
-        app: patient-record-service
+        app: patient-record-service-blue
     spec:
       containers:
       - name: patient-record-service
-        image: 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:uat
+        image: 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:blue
         imagePullPolicy:  Always
         ports:
         - containerPort: 5000
