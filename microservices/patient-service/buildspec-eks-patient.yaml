@@ -7,10 +7,14 @@ phases:
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 182399719344.dkr.ecr.us-east-1.amazonaws.com
       - echo "Pulling Python image from ECR..."
       - docker pull 182399719344.dkr.ecr.us-east-1.amazonaws.com/python-3-9:latest
+      - echo "Installing kubectl..."
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+      - echo "Configuring kubectl for EKS cluster..."
+      - aws eks update-kubeconfig --region us-east-1 --name healthsync
   build:
     commands:
- 
-      # Use a pre-pulled or cached Python base image (if available)
       - echo "Building Docker images..."
       - docker build -t cc-patient-record-service ./microservices/patient-service
       
@@ -19,6 +23,10 @@ phases:
       - echo "Tagging and pushing Docker images..."
       - docker tag cc-patient-record-service:latest 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
       - docker push 182399719344.dkr.ecr.us-east-1.amazonaws.com/cc-patient-record-service:latest
+      - echo "Deploying to EKS cluster..."
+      - kubectl apply -f ./microservices/patient-service/deployment.yml
+      - echo "Rolling out deployment..."
+      - kubectl rollout status deployment/cc-patient-record-service
 
 cache:
   paths:
