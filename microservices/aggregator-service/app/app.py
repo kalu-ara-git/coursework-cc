@@ -7,30 +7,31 @@ import os
 # Initialize Flask app
 app = Flask(__name__)
 
-# MySQL credentials
-# Use environment variables for security
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = 'healthsync-db.c5u0mm4k6d06.us-east-1.rds.amazonaws.com'
-DB_NAME = 'healthsync'
-DB_PORT = 3306
+# MySQL credentials (hardcoded for debugging purposes)
+# db_username =  'admin'
+# db_password = 'pw-healthsync321'
+db_username = os.getenv("DB_USERNAME")  # MySQL username from secrets
+db_password = os.getenv("DB_PASSWORD")  # MySQL password from secrets
+db_host = 'healthsync-db.c5u0mm4k6d06.us-east-1.rds.amazonaws.com'
+db_name = 'healthsync'
+db_port = 3306  # Default MySQL port
 
 # Function to create DB connection
 def get_db_connection():
     try:
         connection = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USERNAME,
-            password=DB_PASSWORD,
-            db=DB_NAME,
-            port=DB_PORT,
+            host=db_host,
+            user=db_username,
+            password=db_password,
+            db=db_name,
+            port=db_port,
             cursorclass=pymysql.cursors.DictCursor
         )
         return connection
     except Exception as e:
         raise InternalServerError(f"Error connecting to the database: {str(e)}")
 
-# Helper function to serialize datetime and other objects
+# Helper function to serialize datetime, timedelta, and other objects
 def custom_serializer(obj):
     if isinstance(obj, (datetime, date, time)):
         return obj.isoformat()
@@ -41,80 +42,86 @@ def custom_serializer(obj):
         return f"{hours:02}:{minutes:02}:{seconds:02}"
     raise TypeError(f"Type {type(obj)} not serializable")
 
-# Route: Number of appointments per doctor
-@app.route('/aggregator/appointments-per-doctor', methods=['GET'])
-def appointments_per_doctor():
+# Route to test RDS connection
+@app.route('/test', methods=['GET'])
+def test_connection():
     connection = None
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            cursor.execute("SELECT requested_doctor, COUNT(*) AS appointment_count FROM patient GROUP BY requested_doctor")
+            cursor.execute("SELECT * FROM patient LIMIT 10")
             results = cursor.fetchall()
-            return jsonify(results), 200
+            # Serialize results to handle datetime and timedelta objects
+            serialized_results = [
+                {key: (custom_serializer(value) if isinstance(value, (datetime, date, time, timedelta)) else value) for key, value in row.items()} 
+                for row in results
+            ]
+            return jsonify(serialized_results), 200
     except Exception as e:
-        return jsonify({"error": f"Error aggregating data: {str(e)}"}), 500
+        return jsonify({"error": f"Error testing RDS connection: {str(e)}"}), 500
     finally:
         if connection:
             connection.close()
 
-# Route: Appointment frequency over time
-@app.route('/aggregator/appointment-frequency', methods=['GET'])
-def appointment_frequency():
+# Route to insert aggregated data into tables
+@app.route('/aggregate', methods=['POST'])
+def aggregate_data():
     connection = None
     try:
         connection = get_db_connection()
         with connection.cursor() as cursor:
-            cursor.execute("SELECT appointment_date, COUNT(*) AS appointment_count FROM patient GROUP BY appointment_date")
-            results = cursor.fetchall()
-            return jsonify(results), 200
-    except Exception as e:
-        return jsonify({"error": f"Error fetching frequency data: {str(e)}"}), 500
-    finally:
-        if connection:
-            connection.close()
+            # Define the current week range
+            def get_week_range():
+                today = date.today()
+                start_of_week = today - timedelta(days=today.weekday())
+                end_of_week = start_of_week + timedelta(days=6)
+                return start_of_week, end_of_week
 
-# Route: Placeholder for common symptoms and conditions
-@app.route('/aggregator/common-conditions', methods=['GET'])
-def common_conditions():
-    # This is a placeholder; actual implementation depends on schema updates for symptoms and conditions.
-    return jsonify({"message": "Common conditions insights coming soon."}), 200
+            start_of_week, end_of_week = get_week_range()
 
-# Route: Create a patient appointment
-@app.route('/patients', methods=['POST'])
-def create_patient():
-    data = request.json
-    patient_id = data.get('patient_id')
-    name = data.get('name')
-    requested_doctor = data.get('requested_doctor')
-    appointment_time = data.get('appointment_time')
-    appointment_date = data.get('appointment_date')
-
-    if not patient_id or not name or not requested_doctor or not appointment_time or not appointment_date:
-        return jsonify({"error": "Missing required fields"}), 400
-
-    connection = None
-    try:
-        connection = get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT * FROM patient WHERE patient_id = %s AND requested_doctor = %s AND appointment_date = %s",
-                (patient_id, requested_doctor, appointment_date)
-            )
-            if cursor.fetchone():
-                return jsonify({"error": "Duplicate appointment"}), 400
-
+            # Appointments per Doctor
             cursor.execute(
                 """
-                INSERT INTO patient (patient_id, name, requested_doctor, appointment_time, appointment_date, created_at)
-                VALUES (%s, %s, %s, %s, %s, NOW())
+                INSERT INTO appointments_per_doctor (doctor_id, appointment_date, total_appointments)
+                SELECT d.doctor_id, p.appointment_date, COUNT(*)
+                FROM doctor d
+                JOIN patient p ON d.name = p.requested_doctor
+                WHERE p.appointment_date BETWEEN %s AND %s
+                GROUP BY d.doctor_id, p.appointment_date
+                ON DUPLICATE KEY UPDATE total_appointments = VALUES(total_appointments)
                 """,
-                (patient_id, name, requested_doctor, appointment_time, appointment_date)
+                (start_of_week, end_of_week)
             )
-            connection.commit()
 
-        return jsonify({"message": "Patient appointment created successfully"}), 201
+            # Appointment Trends
+            cursor.execute(
+                """
+                INSERT INTO appointment_trends (period_start_date, period_end_date, total_appointments)
+                SELECT %s, %s, COUNT(*)
+                FROM patient p
+                WHERE p.appointment_date BETWEEN %s AND %s
+                """,
+                (start_of_week, end_of_week, start_of_week, end_of_week)
+            )
+
+            # Symptoms by Specialty
+            cursor.execute(
+                """
+                INSERT INTO symptoms_by_specialty (specialization, symptom, frequency)
+                SELECT d.specialization, p.doctor_recommendation, COUNT(*)
+                FROM doctor d
+                JOIN patient p ON d.name = p.requested_doctor
+                WHERE p.appointment_date BETWEEN %s AND %s
+                GROUP BY d.specialization, p.doctor_recommendation
+                ON DUPLICATE KEY UPDATE frequency = VALUES(frequency)
+                """,
+                (start_of_week, end_of_week)
+            )
+
+            connection.commit()
+        return jsonify({"message": "Data aggregation and insertion completed successfully"}), 201
     except Exception as e:
-        return jsonify({"error": f"Error creating appointment: {str(e)}"}), 500
+        return jsonify({"error": f"Error aggregating data: {str(e)}"}), 500
     finally:
         if connection:
             connection.close()

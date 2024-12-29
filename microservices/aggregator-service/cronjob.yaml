@@ -3,22 +3,18 @@ kind: CronJob
 metadata:
   name: patient-aggregator-job
 spec:
-  schedule: "45 14 * * *" # Adjust the schedule to run daily at 9:30 AM UTC
+  schedule: "45 14 * * 0" # Adjust the schedule to run weekly at 14:45 UTC (9:45 AM ET on Sundays)
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: patient-aggregator-task-appointments-per-doctor
+          - name: patient-aggregator-task-aggregate
             image: curlimages/curl:latest
             command: ["curl"]
-            args: ["-X", "GET", "http://patient-aggregator-service.default.svc.cluster.local:5000/aggregator/appointments-per-doctor"]
-          - name: patient-aggregator-task-appointment-frequency
-            image: curlimages/curl:latest
-            command: ["curl"]
-            args: ["-X", "GET", "http://patient-aggregator-service.default.svc.cluster.local:5000/aggregator/appointment-frequency"]
-          - name: patient-aggregator-task-common-conditions
-            image: curlimages/curl:latest
-            command: ["curl"]
-            args: ["-X", "GET", "http://patient-aggregator-service.default.svc.cluster.local:5000/aggregator/common-conditions"]
+            args: ["-X", "POST", "http://patient-aggregator-service.default.svc.cluster.local:5000/aggregate"]
+          # - name: patient-aggregator-task-test
+          #   image: curlimages/curl:latest
+          #   command: ["curl"]
+          #   args: ["-X", "GET", "http://patient-aggregator-service.default.svc.cluster.local:5000/test"]
           restartPolicy: OnFailure

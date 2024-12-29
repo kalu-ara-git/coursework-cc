@@ -11,3 +11,17 @@ spec:
       port: 5000
       targetPort: 5000
   type: ClusterIP
+
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: patient-aggregator-service
+# spec:
+#   selector:
+#     app: patient-aggregator-service
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 5000
+#   type: LoadBalancer
